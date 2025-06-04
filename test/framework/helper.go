@@ -22,6 +22,10 @@ func ExpectError(err error, explain ...interface{}) {
 	gomega.ExpectWithOffset(1, err).To(gomega.HaveOccurred(), explain...)
 }
 
+func ExpectNotFound(err error, explain ...interface{}) {
+	gomega.ExpectWithOffset(1, err).To(gomega.MatchError(gomega.ContainSubstring("not found")), explain...)
+}
+
 func ExpectNotEmpty(actual interface{}, explain ...interface{}) {
 	gomega.ExpectWithOffset(1, actual).ToNot(gomega.BeEmpty(), explain...)
 }

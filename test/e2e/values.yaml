@@ -39,6 +39,10 @@ experimental:
             name: ingress-nginx
             namespace: ingress-nginx
           timeout: "50s"
+          values: |-
+            controller:
+              admissionWebhooks:
+                enabled: false
         - chart:
             name: fluent-bit
             repo: oci://registry-1.docker.io/bitnamicharts
@@ -48,9 +52,47 @@ experimental:
             namespace: fluent-bit
           timeout: "50s"
 sync:
+  toHost:
+    ingresses:
+      enabled: true
   fromHost:
     runtimeClasses:
       enabled: true
+      selector:
+        matchExpressions:
+          - key: "kubernetes.io/selector-from-host-sync-test"
+            operator: Exists
+    ingressClasses:
+      enabled: true
+      selector:
+        matchLabels:
+          kubernetes.io/selector-from-host-sync-test: "true"
+    storageClasses:
+      enabled: true
+      selector:
+        matchExpressions:
+          - key: "kubernetes.io/selector-from-host-sync-test"
+            operator: In
+            values:
+              - "true"
+              - "yes"
+              - "1"
+              - "on"
+              - "positive"
+              - "enabled"
+    priorityClasses:
+      enabled: true
+      selector:
+        matchExpressions:
+          - key: "kubernetes.io/selector-from-host-sync-test"
+            operator: NotIn
+            values:
+              - "false"
+              - "no"
+              - "0"
+              - "off"
+              - "negative"
+              - "disabled"
     configMaps:
       enabled: true
       mappings:

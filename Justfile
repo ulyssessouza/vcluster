@@ -86,8 +86,8 @@ test-chart:
   helm unittest chart
 
 # Run e2e tests
-e2e distribution="k3s" path="./test/e2e" multinamespace="false": create-kind && delete-kind
-  echo "Execute test suites ({{ distribution }}, {{ path }}, {{ multinamespace }})"
+e2e focus=".*" distribution="k3s" path="./test/e2e" multinamespace="false": create-kind && delete-kind
+  echo "Execute test suites ({{ focus }}, {{ distribution }}, {{ path }}, {{ multinamespace }})"
 
   TELEMETRY_PRIVATE_KEY="" goreleaser build --snapshot --clean
   cp dist/vcluster_linux_$(go env GOARCH | sed s/amd64/amd64_v1/g | sed s/arm64/arm64_v8.0/g)/vcluster ./vcluster
@@ -125,7 +125,7 @@ e2e distribution="k3s" path="./test/e2e" multinamespace="false": create-kind && 
     VCLUSTER_NAMESPACE=vcluster \
     MULTINAMESPACE_MODE={{ multinamespace }} \
     KIND_NAME=vcluster \
-    go test -v -ginkgo.v -ginkgo.skip='.*NetworkPolicy.*' -ginkgo.fail-fast
+    go test -v -ginkgo.v -ginkgo.skip='.*NetworkPolicy.*' -ginkgo.fail-fast -ginkgo.focus='{{focus}}' {{path}}
 
 
 cli version="0.0.0" *ARGS="":

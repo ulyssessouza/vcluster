@@ -1,13 +1,14 @@
-package runtimeclass
+package fromhost
 
 import (
 	"time"
 
-	"github.com/loft-sh/vcluster/test/framework"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	nodev1 "k8s.io/api/node/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/loft-sh/vcluster/test/framework"
 )
 
 var _ = ginkgo.Describe("Verify runtimeClass is synced from Host to vCluster", ginkgo.Ordered, func() {
@@ -22,6 +23,9 @@ var _ = ginkgo.Describe("Verify runtimeClass is synced from Host to vCluster", g
 		runtimeClass = &nodev1.RuntimeClass{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: runtimeClassName,
+				Labels: map[string]string{
+					"kubernetes.io/selector-from-host-sync-test": "ignored_when_using_Exists_operator",
+				},
 			},
 			Handler: "custom-handler",
 		}

@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"github.com/loft-sh/log"
-	"github.com/loft-sh/vcluster/test/framework"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+
+	"github.com/loft-sh/vcluster/test/framework"
 
 	// Enable cloud provider aut
 	// Enable cloud provider auth
@@ -25,8 +26,8 @@ import (
 	_ "github.com/loft-sh/vcluster/test/e2e/syncer/networkpolicies"
 	_ "github.com/loft-sh/vcluster/test/e2e/syncer/pods"
 	_ "github.com/loft-sh/vcluster/test/e2e/syncer/pvc"
-	_ "github.com/loft-sh/vcluster/test/e2e/syncer/runtimeclass"
 	_ "github.com/loft-sh/vcluster/test/e2e/syncer/services"
+	_ "github.com/loft-sh/vcluster/test/e2e/syncer/tohost"
 	_ "github.com/loft-sh/vcluster/test/e2e/webhook"
 )
 
