@@ -1,9 +1,9 @@
 package endpoints
 
 import (
+	"context
 	"errors"
 	"fmt"
-	"context"
 
 	"github.com/loft-sh/vcluster/pkg/mappings"
 	"github.com/loft-sh/vcluster/pkg/patcher"
@@ -19,8 +19,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 )
 
@@ -62,32 +63,29 @@ func (s *endpointsSyncer) Syncer() syncertypes.Sync[client.Object] {
 
 var _ syncertypes.ControllerModifier = &endpointsSyncer{}
 
-func (s *endpointsSyncer) ModifyController(ctx *synccontext.RegisterContext, bld *builder.Builder) (*builder.Builder, error) {
-    klog.Info("Starting to modify the controller to watch for Service changes and reconcile Endpoints")
+func (s *endpointsSyncer) ModifyController(_ *synccontext.RegisterContext, bld *builder.Builder) (*builder.Builder, error) {
+	klog.Info("Starting to modify the controller to watch for Service changes and reconcile Endpoints")
 
-    // Watch for changes to Services and reconcile Endpoints
-    bld = bld.Watches(&corev1.Service{}, handler.EnqueueRequestsFromMapFunc(func(_ context.Context, obj client.Object) []ctrl.Request {
-        service, ok := obj.(*corev1.Service)
-        if !ok || service == nil {
-            klog.Info("Received an object that is not a Service or is nil, skipping")
-            return []ctrl.Request{}
-        }
+	// Watch for changes to Services and reconcile Endpoints
+	return bld.Watches(&corev1.Service{}, handler.EnqueueRequestsFromMapFunc(func(_ context.Context, obj client.Object) []ctrl.Request {
+		service, ok := obj.(*corev1.Service)
+		if !ok || service == nil {
+			klog.Info("Received an object that is not a Service or is nil, skipping")
+			return []ctrl.Request{}
+		}
 
-        klog.Infof("Enqueuing reconciliation request of Endpoint for Service: %s/%s", service.Namespace, service.Name)
+		klog.Infof("Enqueuing reconciliation request of Endpoint for Service: %s/%s", service.Namespace, service.Name)
 
-        // Enqueue a request to reconcile the corresponding Endpoints
-        return []ctrl.Request{
-            {
-                NamespacedName: types.NamespacedName{
-                    Namespace: service.Namespace,
-                    Name:      service.Name,
-                },
-            },
-        }
-    }))
-
-    return bld, nil
+		// Enqueue a request to reconcile the corresponding Endpoints
+		return []ctrl.Request{{
+			NamespacedName: types.NamespacedName{
+				Namespace: service.Namespace,
+				Name:      service.Name,
+			},
+		}}
+	})), nil
 }
+
 //nolint:staticcheck // SA1019: corev1.Endpoints is deprecated, but still required for compatibility
 func (s *endpointsSyncer) SyncToHost(ctx *synccontext.SyncContext, event *synccontext.SyncToHostEvent[*corev1.Endpoints]) (ctrl.Result, error) {
 	if event.HostOld != nil {
